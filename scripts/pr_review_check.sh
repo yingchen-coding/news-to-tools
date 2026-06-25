@@ -4,6 +4,11 @@ set -euo pipefail
 python -m ruff check .
 python -m compileall -q news_to_tools tests
 pytest -q
+python -m pip install -e '.[dev]'
+news-to-tools --help >/tmp/news-to-tools-review.txt
+package_dir="$(mktemp -d)"
+python -m build --sdist --wheel --outdir "$package_dir"
+python -m twine check "$package_dir"/*
 agentguard --publish-check --score --no-color .
 
 python - <<'PY'
