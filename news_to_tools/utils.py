@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 DEFAULT_STATE_DIR = Path(".news-to-tools")
 
 

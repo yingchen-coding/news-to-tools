@@ -4,7 +4,14 @@ import argparse
 import json
 from pathlib import Path
 
-from . import medical_claim_gate, model_registry, pdf_triage, security_incidents, usage_bank, workboard
+from . import (
+    medical_claim_gate,
+    model_registry,
+    pdf_triage,
+    security_incidents,
+    usage_bank,
+    workboard,
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -95,7 +102,8 @@ def main(argv: list[str] | None = None) -> int:
         account = usage_bank.account(data, args.account)
         ok = usage_bank.spend(account, args.amount, reason=args.reason)
         usage_bank.save(data)
-        print(f"{args.account}: {'spent' if ok else 'denied'} balance={usage_bank.balance(account)}")
+        result = "spent" if ok else "denied"
+        print(f"{args.account}: {result} balance={usage_bank.balance(account)}")
         return 0 if ok else 3
     if args.command == "pdf-triage":
         print(pdf_triage.triage(args.path))

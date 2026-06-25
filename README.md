@@ -1,5 +1,7 @@
 # News to Tools
 
+[![CI](https://github.com/yingchen-coding/news-to-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/yingchen-coding/news-to-tools/actions/workflows/ci.yml)
+
 Turn AI/news articles into an implementation backlog with evidence gates, not another summary.
 
 Most AI news is noise: model hype, screenshots, benchmark claims, safety incidents, and workflow
@@ -16,6 +18,12 @@ ideas. This CLI converts those items into concrete local state:
 
 ```bash
 python -m pip install -e .
+```
+
+If your shell has not picked up the console-script path, use:
+
+```bash
+python -m news_to_tools --help
 ```
 
 ## Quick Demos
@@ -52,6 +60,14 @@ news-to-tools medical-claim "Model claims 91% doctor adoption" \
 By default, the CLI writes local state under `.news-to-tools/` in the current working directory.
 That directory is ignored by git.
 
+## Local Review Check
+
+Before pushing changes, run:
+
+```bash
+scripts/pr_review_check.sh
+```
+
 ## What This Is Not
 
 This is not a scraper for private chats. The public repo intentionally excludes personal WeChat
@@ -61,4 +77,3 @@ This is not a benchmark system. Model candidates are blocked from automatic rout
 real local verification.
 
 This is not medical advice. Medical AI claims are recorded as claims and blocked by default.
-

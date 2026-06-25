@@ -42,7 +42,14 @@ def add_candidate(
     return record
 
 
-def verify(data: dict[str, Any], model_id: str, *, command: str, passed: bool, notes: str = "") -> None:
+def verify(
+    data: dict[str, Any],
+    model_id: str,
+    *,
+    command: str,
+    passed: bool,
+    notes: str = "",
+) -> None:
     record = data["models"][model_id]
     record.setdefault("verification", []).append(
         {"at": now(), "command": command, "passed": passed, "notes": notes}
@@ -50,4 +57,3 @@ def verify(data: dict[str, Any], model_id: str, *, command: str, passed: bool, n
     record["updated_at"] = now()
     record["status"] = "verified" if passed else "candidate"
     record["auto_route_allowed"] = bool(passed)
-
