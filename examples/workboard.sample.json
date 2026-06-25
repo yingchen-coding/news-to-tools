@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "Implement-agent-workflow",
+      "title": "Implement agent workflow",
+      "source": "example article",
+      "source_url": "https://example.com/agent-workflow",
+      "status": "queued",
+      "priority": 3,
+      "acceptance": [
+        "Task has concrete local behavior",
+        "Evidence command is recorded"
+      ],
+      "evidence": [],
+      "artifacts": [],
+      "blockers": []
+    }
+  ]
+}
+

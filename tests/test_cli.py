@@ -1,0 +1,20 @@
+from pathlib import Path
+
+from news_to_tools.cli import main
+
+
+def test_cli_task_add_and_list(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    assert main(["task-add", "Implement article", "--source", "test"]) == 0
+    assert main(["task-list"]) == 0
+    output = capsys.readouterr().out
+    assert "Implement-article" in output
+
+
+def test_cli_usage_denies_overspend(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    assert main(["usage-grant", "agent", "10", "--reason", "test"]) == 0
+    assert main(["usage-spend", "agent", "20", "--reason", "too much"]) == 3
+    output = capsys.readouterr().out
+    assert "denied" in output
+

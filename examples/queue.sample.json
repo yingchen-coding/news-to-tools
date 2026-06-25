@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "title": "New model claims 10x cheaper long-context coding",
+      "source_url": "https://example.com/model-news",
+      "theme": "model_candidate"
+    },
+    {
+      "title": "Medical AI claims 91% doctor adoption",
+      "source_url": "https://example.com/medical-ai",
+      "theme": "medical_claim"
+    },
+    {
+      "title": "Agent workflow adds background task board",
+      "source_url": "https://example.com/agent-workflow",
+      "theme": "implementation_task"
+    }
+  ]
+}
+
