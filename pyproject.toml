@@ -16,11 +16,22 @@ classifiers = [
   "Environment :: Console",
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Software Development :: Quality Assurance",
 ]
 
+[project.urls]
+Homepage = "https://github.com/yingchen-coding/news-to-tools"
+Repository = "https://github.com/yingchen-coding/news-to-tools"
+Issues = "https://github.com/yingchen-coding/news-to-tools/issues"
+
 [project.scripts]
 news-to-tools = "news_to_tools.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.11"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -31,4 +42,3 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-

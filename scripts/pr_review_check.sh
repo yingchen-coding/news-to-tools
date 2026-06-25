@@ -4,6 +4,7 @@ set -euo pipefail
 python -m ruff check .
 python -m compileall -q news_to_tools tests
 pytest -q
+agentguard --publish-check --score --no-color .
 
 python - <<'PY'
 import os
