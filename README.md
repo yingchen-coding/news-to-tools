@@ -1,6 +1,8 @@
 # News to Tools
 
 [![CI](https://github.com/yingchen-coding/news-to-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/yingchen-coding/news-to-tools/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 Turn AI/news articles into an implementation backlog with evidence gates, not another summary.
 
@@ -13,6 +15,12 @@ ideas. This CLI converts those items into concrete local state:
 - medical AI claim gates that block clinical use without independent validation
 - model security incident logs
 - PDF triage packets for long documents
+
+## Star This If
+
+- Your AI reading queue keeps producing ideas but not shipped tools.
+- You want model announcements captured as gated candidates, not automatically trusted dependencies.
+- You want a local CLI that turns articles into tasks, risk records, and verification requirements.
 
 ## Install
 
