@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from pathlib import Path
 
 from news_to_tools.cli import main
@@ -18,3 +20,12 @@ def test_cli_usage_denies_overspend(tmp_path: Path, monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "denied" in output
 
+
+def test_module_entrypoint_help():
+    result = subprocess.run(
+        [sys.executable, "-m", "news_to_tools", "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "Turn AI/news items into evidence-gated tools." in result.stdout

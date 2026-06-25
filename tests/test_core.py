@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from news_to_tools import medical_claim_gate, model_registry, security_incidents, usage_bank, workboard
+from news_to_tools import (
+    medical_claim_gate,
+    model_registry,
+    pdf_triage,
+    security_incidents,
+    usage_bank,
+    workboard,
+)
 
 
 def test_workboard_add_and_render():
@@ -64,11 +71,8 @@ def test_security_incident_high_severity_blocks_route():
 
 
 def test_pdf_triage_text_file(tmp_path: Path):
-    from news_to_tools import pdf_triage
-
     source = tmp_path / "report.txt"
     source.write_text("Agent workflow evidence evidence.", encoding="utf-8")
     out = pdf_triage.triage(source, tmp_path / "out")
     assert (out / "extracted.txt").exists()
     assert (out / "triage.json").exists()
-

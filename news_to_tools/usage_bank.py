@@ -38,16 +38,36 @@ def balance(account_record: dict[str, Any], on_date: str | None = None) -> int:
     return total
 
 
-def grant(account_record: dict[str, Any], amount: int, *, reason: str, expires_on: str = "") -> None:
+def grant(
+    account_record: dict[str, Any],
+    amount: int,
+    *,
+    reason: str,
+    expires_on: str = "",
+) -> None:
     if amount <= 0:
         raise ValueError("grant amount must be positive")
     account_record.setdefault("grants", []).append(
-        {"created_at": now(), "amount": amount, "remaining": amount, "reason": reason, "expires_on": expires_on}
+        {
+            "created_at": now(),
+            "amount": amount,
+            "remaining": amount,
+            "reason": reason,
+            "expires_on": expires_on,
+        }
     )
-    account_record.setdefault("audit", []).append({"at": now(), "event": "grant", "amount": amount, "reason": reason})
+    account_record.setdefault("audit", []).append(
+        {"at": now(), "event": "grant", "amount": amount, "reason": reason}
+    )
 
 
-def spend(account_record: dict[str, Any], amount: int, *, reason: str, on_date: str | None = None) -> bool:
+def spend(
+    account_record: dict[str, Any],
+    amount: int,
+    *,
+    reason: str,
+    on_date: str | None = None,
+) -> bool:
     if amount <= 0:
         raise ValueError("spend amount must be positive")
     on_date = on_date or today()
@@ -69,6 +89,7 @@ def spend(account_record: dict[str, Any], amount: int, *, reason: str, on_date: 
         left -= take
         if left == 0:
             break
-    account_record.setdefault("audit", []).append({"at": now(), "event": "spend", "amount": amount, "reason": reason})
+    account_record.setdefault("audit", []).append(
+        {"at": now(), "event": "spend", "amount": amount, "reason": reason}
+    )
     return True
-
