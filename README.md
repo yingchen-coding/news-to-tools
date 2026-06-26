@@ -4,10 +4,10 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-Turn AI/news articles into an implementation backlog with evidence gates, not another summary.
+Stop hoarding AI news. Turn the useful parts into tasks, gates, and local tools.
 
-Most AI news is noise: model hype, screenshots, benchmark claims, safety incidents, and workflow
-ideas. This CLI converts those items into concrete local state:
+Most AI/news feeds are noise: model hype, screenshots, benchmark claims, safety incidents, and
+workflow ideas. News to Tools converts the parts worth acting on into concrete local state:
 
 - workboard tasks with acceptance criteria and evidence
 - guarded model candidates with `auto_route_allowed=false` until verified
@@ -18,9 +18,9 @@ ideas. This CLI converts those items into concrete local state:
 
 ## Star This If
 
-- Your AI reading queue keeps producing ideas but not shipped tools.
+- Your reading queue is full but your shipped-tool queue is empty.
 - You want model announcements captured as gated candidates, not automatically trusted dependencies.
-- You want a local CLI that turns articles into tasks, risk records, and verification requirements.
+- You want claims, incidents, PDFs, and article queues turned into local state with evidence requirements.
 
 ## Install
 
