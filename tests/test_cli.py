@@ -21,6 +21,20 @@ def test_cli_usage_denies_overspend(tmp_path: Path, monkeypatch, capsys):
     assert "denied" in output
 
 
+def test_cli_queue_import(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    queue = tmp_path / "queue.json"
+    queue.write_text(
+        '{"items":[{"title":"Implement latest agent article","status":"new"}]}',
+        encoding="utf-8",
+    )
+    assert main(["queue-import", str(queue)]) == 0
+    output = capsys.readouterr().out
+    assert '"imported": 1' in output
+    assert main(["task-list"]) == 0
+    assert "Implement-latest-agent-article" in capsys.readouterr().out
+
+
 def test_module_entrypoint_help():
     result = subprocess.run(
         [sys.executable, "-m", "news_to_tools", "--help"],

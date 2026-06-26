@@ -8,6 +8,7 @@ from . import (
     medical_claim_gate,
     model_registry,
     pdf_triage,
+    queue_import,
     security_incidents,
     usage_bank,
     workboard,
@@ -25,6 +26,16 @@ def main(argv: list[str] | None = None) -> int:
     add_task.add_argument("--status", default="queued")
 
     sub.add_parser("task-list", help="list workboard tasks")
+
+    queue = sub.add_parser("queue-import", help="import an article/news queue into tasks")
+    queue.add_argument("path", type=Path)
+    queue.add_argument(
+        "--include-status",
+        action="append",
+        default=[],
+        help="status to import; repeatable. Defaults to new/queued/todo/pending/missing.",
+    )
+    queue.add_argument("--source", default="queue-import")
 
     model_add = sub.add_parser("model-add", help="add guarded model candidate")
     model_add.add_argument("model_id")
@@ -77,6 +88,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "task-list":
         print(workboard.render(workboard.load()))
+        return 0
+    if args.command == "queue-import":
+        statuses = {status.lower() for status in args.include_status} or None
+        print(
+            json.dumps(
+                queue_import.import_queue(args.path, include_statuses=statuses, source=args.source),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return 0
     if args.command == "model-add":
         data = model_registry.load()
