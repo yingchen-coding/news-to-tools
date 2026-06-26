@@ -4,10 +4,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .utils import DEFAULT_STATE_DIR, now, read_json, slug, write_json
+from .utils import now, read_json, slug, state_path, write_json
 
 VALID_STATUS = {"queued", "running", "blocked", "review", "done", "dropped"}
-DEFAULT_WORKBOARD = DEFAULT_STATE_DIR / "workboard.json"
+WORKBOARD_FILE = "workboard.json"
 
 
 @dataclass
@@ -43,14 +43,16 @@ class Task:
         }
 
 
-def load(path: Path = DEFAULT_WORKBOARD) -> dict[str, Any]:
+def load(path: Path | None = None) -> dict[str, Any]:
+    path = path or state_path(WORKBOARD_FILE)
     data = read_json(path, {"version": 1, "tasks": []})
     if not isinstance(data.get("tasks"), list):
         raise ValueError(f"invalid workboard: {path}")
     return data
 
 
-def save(data: dict[str, Any], path: Path = DEFAULT_WORKBOARD) -> None:
+def save(data: dict[str, Any], path: Path | None = None) -> None:
+    path = path or state_path(WORKBOARD_FILE)
     write_json(path, data)
 
 
@@ -95,4 +97,3 @@ def render(data: dict[str, Any]) -> str:
         if task.get("blockers"):
             lines.append(f"  blocker: {task['blockers'][-1]}")
     return "\n".join(lines)
-

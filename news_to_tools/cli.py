@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from . import (
@@ -13,10 +14,16 @@ from . import (
     usage_bank,
     workboard,
 )
+from .utils import STATE_DIR_ENV
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Turn AI/news items into evidence-gated tools.")
+    parser.add_argument(
+        "--state-dir",
+        type=Path,
+        help=f"state directory; defaults to .news-to-tools or ${STATE_DIR_ENV}",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     add_task = sub.add_parser("task-add", help="add a workboard task")
@@ -71,7 +78,20 @@ def main(argv: list[str] | None = None) -> int:
     incident.add_argument("--source-url", default="")
 
     args = parser.parse_args(argv)
+    previous_state_dir = os.environ.get(STATE_DIR_ENV)
+    if args.state_dir:
+        os.environ[STATE_DIR_ENV] = str(args.state_dir)
+    try:
+        return _run_command(args)
+    finally:
+        if args.state_dir:
+            if previous_state_dir is None:
+                os.environ.pop(STATE_DIR_ENV, None)
+            else:
+                os.environ[STATE_DIR_ENV] = previous_state_dir
 
+
+def _run_command(args: argparse.Namespace) -> int:
     if args.command == "task-add":
         data = workboard.load()
         record = workboard.add_task(

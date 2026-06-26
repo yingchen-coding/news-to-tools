@@ -1,12 +1,23 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 DEFAULT_STATE_DIR = Path(".news-to-tools")
+STATE_DIR_ENV = "NEWS_TO_TOOLS_STATE_DIR"
+
+
+def state_dir() -> Path:
+    configured = os.environ.get(STATE_DIR_ENV)
+    return Path(configured).expanduser() if configured else DEFAULT_STATE_DIR
+
+
+def state_path(name: str) -> Path:
+    return state_dir() / name
 
 
 def now() -> str:
@@ -30,4 +41,3 @@ def read_json(path: Path, default: dict[str, Any]) -> dict[str, Any]:
 def write_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-

@@ -3,20 +3,22 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .utils import DEFAULT_STATE_DIR, now, read_json, write_json
+from .utils import now, read_json, state_path, write_json
 
-DEFAULT_INCIDENTS = DEFAULT_STATE_DIR / "model-security-incidents.json"
+INCIDENTS_FILE = "model-security-incidents.json"
 VALID_SEVERITY = {"low", "medium", "high", "critical"}
 
 
-def load(path: Path = DEFAULT_INCIDENTS) -> dict[str, Any]:
+def load(path: Path | None = None) -> dict[str, Any]:
+    path = path or state_path(INCIDENTS_FILE)
     data = read_json(path, {"version": 1, "incidents": []})
     if not isinstance(data.get("incidents"), list):
         raise ValueError(f"invalid incidents file: {path}")
     return data
 
 
-def save(data: dict[str, Any], path: Path = DEFAULT_INCIDENTS) -> None:
+def save(data: dict[str, Any], path: Path | None = None) -> None:
+    path = path or state_path(INCIDENTS_FILE)
     write_json(path, data)
 
 
@@ -43,4 +45,3 @@ def add(
     }
     data["incidents"].append(record)
     return record
-

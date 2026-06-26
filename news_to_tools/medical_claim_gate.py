@@ -4,9 +4,9 @@ import re
 from pathlib import Path
 from typing import Any
 
-from .utils import DEFAULT_STATE_DIR, now, read_json, write_json
+from .utils import now, read_json, state_path, write_json
 
-DEFAULT_CLAIMS = DEFAULT_STATE_DIR / "medical-ai-claims.json"
+CLAIMS_FILE = "medical-ai-claims.json"
 HIGH_RISK_TERMS = {
     "诊断",
     "用药",
@@ -20,14 +20,16 @@ HIGH_RISK_TERMS = {
 }
 
 
-def load(path: Path = DEFAULT_CLAIMS) -> dict[str, Any]:
+def load(path: Path | None = None) -> dict[str, Any]:
+    path = path or state_path(CLAIMS_FILE)
     data = read_json(path, {"version": 1, "claims": []})
     if not isinstance(data.get("claims"), list):
         raise ValueError(f"invalid claims file: {path}")
     return data
 
 
-def save(data: dict[str, Any], path: Path = DEFAULT_CLAIMS) -> None:
+def save(data: dict[str, Any], path: Path | None = None) -> None:
+    path = path or state_path(CLAIMS_FILE)
     write_json(path, data)
 
 

@@ -7,9 +7,9 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from .utils import DEFAULT_STATE_DIR, now, slug, write_json
+from .utils import now, slug, state_path, write_json
 
-DEFAULT_OUTPUT = DEFAULT_STATE_DIR / "pdf-triage"
+PDF_TRIAGE_DIR = "pdf-triage"
 
 
 def extract_text(path: Path) -> str:
@@ -34,7 +34,8 @@ def keywords(text: str, limit: int = 20) -> list[dict[str, Any]]:
     return [{"term": term, "count": count} for term, count in counts.most_common(limit)]
 
 
-def triage(path: Path, output_root: Path = DEFAULT_OUTPUT) -> Path:
+def triage(path: Path, output_root: Path | None = None) -> Path:
+    output_root = output_root or state_path(PDF_TRIAGE_DIR)
     text = extract_text(path)
     pages = [page.strip() for page in text.split("\f") if page.strip()] or [text]
     report = {
@@ -50,4 +51,3 @@ def triage(path: Path, output_root: Path = DEFAULT_OUTPUT) -> Path:
     (out / "extracted.txt").write_text(text, encoding="utf-8")
     write_json(out / "triage.json", report)
     return out
-

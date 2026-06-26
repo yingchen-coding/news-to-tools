@@ -79,6 +79,15 @@ news-to-tools medical-claim "Model claims 91% doctor adoption" \
 By default, the CLI writes local state under `.news-to-tools/` in the current working directory.
 That directory is ignored by git.
 
+For automation, pin the state directory so commands do not depend on the current working directory:
+
+```bash
+news-to-tools --state-dir ~/Documents/learning/news-to-tools task-list
+
+NEWS_TO_TOOLS_STATE_DIR=~/Documents/learning/news-to-tools \
+  news-to-tools task-add "Implement article: agent trace action extraction"
+```
+
 ## Local Review Check
 
 Before pushing changes, run:
