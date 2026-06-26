@@ -51,7 +51,7 @@ def import_queue(
 
     workboard.save(data)
     return {
-        "source": str(path),
+        "source_file": path.name,
         "items": len(items),
         "imported": len(imported),
         "skipped": skipped,

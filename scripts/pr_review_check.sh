@@ -41,12 +41,25 @@ blocked = [
     "BEGIN " + "PRIVATE" + " KEY",
     "private-user" + "-images",
     "Temporary" + "Items",
+    "NSIRD_screencaptureui_",  # agentguard-allow AL504
+    "OPENAI_API_KEY",  # agentguard-allow AL504
+    "ANTHROPIC_API_KEY",  # agentguard-allow AL504
+    "GITHUB_TOKEN=",  # agentguard-allow AL504
+    "GH_TOKEN=",  # agentguard-allow AL504
+    "AWS_ACCESS_KEY_ID",  # agentguard-allow AL504
+    "AWS_SECRET_ACCESS_KEY",  # agentguard-allow AL504
+    "DATABRICKS_TOKEN",  # agentguard-allow AL504
+    "personal_medical_record",  # agentguard-allow AL504
+    "google-team-match",  # agentguard-allow AL504
 ]
 skip_dirs = {".git", ".pytest_cache", "__pycache__"}
+skip_files = {Path("scripts/pr_review_check.sh")}
 findings: list[str] = []
 
 for path in Path(".").rglob("*"):
     if not path.is_file():
+        continue
+    if path in skip_files:
         continue
     if any(part in skip_dirs for part in path.parts):
         continue
