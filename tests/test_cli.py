@@ -60,6 +60,68 @@ def test_cli_uses_state_dir_environment(tmp_path: Path, monkeypatch, capsys):
     assert "Env-task" in capsys.readouterr().out
 
 
+def test_cli_claim_diligence_lifecycle(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+
+    assert (
+        main(
+            [
+                "claim-add",
+                "--subject",
+                "Example coding model",
+                "--domain",
+                "coding",
+                "--claim-type",
+                "benchmark",
+                "--claim",
+                "Solves more coding issues on a public benchmark.",
+                "--source-url",
+                "https://example.com/coding-model",
+                "--benchmark",
+                "Public issue benchmark",
+                "--reproduction-evidence",
+                "local reproduction passed",
+                "--status",
+                "validated",
+            ]
+        )
+        == 0
+    )
+    assert main(["claim-validate"]) == 0
+    assert "OK" in capsys.readouterr().out
+
+    assert main(["claim-list"]) == 0
+    assert "Example-coding-model-benchmark" in capsys.readouterr().out
+
+    export_path = tmp_path / "claims.md"
+    assert main(["claim-export", "--output", str(export_path)]) == 0
+    assert "AI Claim Diligence" in export_path.read_text(encoding="utf-8")
+
+
+def test_cli_claim_diligence_returns_nonzero_for_missing_evidence(tmp_path: Path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    assert (
+        main(
+            [
+                "claim-add",
+                "--subject",
+                "Example physical agent",
+                "--domain",
+                "physical",
+                "--claim-type",
+                "deployment",
+                "--claim",
+                "Runs safely around people.",
+                "--source-url",
+                "https://example.com/physical-agent",
+            ]
+        )
+        == 0
+    )
+    assert main(["claim-validate"]) == 2
+
+
 def test_module_entrypoint_help():
     result = subprocess.run(
         [sys.executable, "-m", "news_to_tools", "--help"],

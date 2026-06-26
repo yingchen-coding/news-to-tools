@@ -62,6 +62,27 @@ with TemporaryDirectory() as tmp:
         assert main(["task-list"]) == 0
         assert main(["usage-grant", "agent", "5", "--reason", "review"]) == 0
         assert main(["usage-spend", "agent", "9", "--reason", "overspend"]) == 3
+        assert main([
+            "claim-add",
+            "--subject",
+            "Review coding model",
+            "--domain",
+            "coding",
+            "--claim-type",
+            "benchmark",
+            "--claim",
+            "Improves public benchmark performance.",
+            "--source-url",
+            "https://example.com/review-model",
+            "--benchmark",
+            "Public benchmark",
+            "--reproduction-evidence",
+            "review smoke passed",
+            "--status",
+            "validated",
+        ]) == 0
+        assert main(["claim-list"]) == 0
+        assert main(["claim-validate"]) == 0
     finally:
         os.chdir(cwd)
 PY
