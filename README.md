@@ -14,6 +14,7 @@ workflow ideas. News to Tools converts the parts worth acting on into concrete l
 - usage/quota budgets for long-running agents
 - medical AI claim gates that block clinical use without independent validation
 - model security incident logs
+- AI claim diligence for benchmark, cost, safety, deployment, adoption, and physical-AI claims
 - PDF triage packets for long documents
 
 ## Star This If
@@ -21,6 +22,8 @@ workflow ideas. News to Tools converts the parts worth acting on into concrete l
 - Your reading queue is full but your shipped-tool queue is empty.
 - You want model announcements captured as gated candidates, not automatically trusted dependencies.
 - You want claims, incidents, PDFs, and article queues turned into local state with evidence requirements.
+- You want a public, generic way to turn impressive AI claims into "implement", "track",
+  "verify-first", or "reject" decisions.
 
 ## Install
 
@@ -77,6 +80,26 @@ news-to-tools medical-claim "Model claims 91% doctor adoption" \
   --source-url "https://example.com/medical-ai" \
   --text "Claims 91% doctor adoption for medical record generation."
 ```
+
+Gate a broad AI claim before you build from it:
+
+```bash
+news-to-tools claim-add \
+  --subject "Example coding model" \
+  --domain coding \
+  --claim-type benchmark \
+  --claim "Solves more repository issues on a public benchmark." \
+  --source-url "https://example.com/coding-model" \
+  --benchmark "Public issue-resolution benchmark" \
+  --reproduction-evidence "local harness passed" \
+  --status validated
+
+news-to-tools claim-list
+news-to-tools claim-validate
+```
+
+High-risk claims are intentionally stricter. Medical, security, and physical-AI deployment claims
+need safety or reproduction evidence before they can move past `verify-first`.
 
 ## State Files
 

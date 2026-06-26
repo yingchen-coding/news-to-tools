@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 from . import (
+    claim_diligence,
     medical_claim_gate,
     model_registry,
     pdf_triage,
@@ -76,6 +77,37 @@ def main(argv: list[str] | None = None) -> int:
     incident.add_argument("--severity", required=True)
     incident.add_argument("--mitigation", required=True)
     incident.add_argument("--source-url", default="")
+
+    claim_add = sub.add_parser("claim-add", help="record an evidence-gated AI claim")
+    claim_add.add_argument("--subject", required=True)
+    claim_add.add_argument("--domain", required=True, choices=sorted(claim_diligence.VALID_DOMAINS))
+    claim_add.add_argument(
+        "--claim-type", required=True, choices=sorted(claim_diligence.VALID_CLAIM_TYPES)
+    )
+    claim_add.add_argument("--claim", required=True)
+    claim_add.add_argument("--source-url", required=True)
+    claim_add.add_argument("--benchmark", default="")
+    claim_add.add_argument("--deployment-evidence", default="")
+    claim_add.add_argument("--safety-evidence", default="")
+    claim_add.add_argument("--cost-evidence", default="")
+    claim_add.add_argument("--reproduction-evidence", default="")
+    claim_add.add_argument("--adoption-evidence", default="")
+    claim_add.add_argument("--risk", default="", choices=[""] + sorted(claim_diligence.VALID_RISKS))
+    claim_add.add_argument(
+        "--status", default="needs-review", choices=sorted(claim_diligence.VALID_STATUS)
+    )
+
+    claim_import = sub.add_parser("claim-import", help="import AI claim diligence records")
+    claim_import.add_argument("path", type=Path)
+
+    sub.add_parser("claim-list", help="list AI claim diligence records")
+
+    claim_validate = sub.add_parser("claim-validate", help="validate AI claim diligence state")
+    claim_validate.add_argument("--json", action="store_true")
+
+    claim_export = sub.add_parser("claim-export", help="export AI claim diligence state")
+    claim_export.add_argument("--format", choices=["json", "markdown"], default="markdown")
+    claim_export.add_argument("--output", type=Path)
 
     args = parser.parse_args(argv)
     previous_state_dir = os.environ.get(STATE_DIR_ENV)
@@ -173,6 +205,62 @@ def _run_command(args: argparse.Namespace) -> int:
         )
         security_incidents.save(data)
         print(json.dumps(record, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "claim-add":
+        data = claim_diligence.load()
+        record = claim_diligence.make_record(
+            subject=args.subject,
+            domain=args.domain,
+            claim_type=args.claim_type,
+            claim=args.claim,
+            source_url=args.source_url,
+            benchmark=args.benchmark,
+            deployment_evidence=args.deployment_evidence,
+            safety_evidence=args.safety_evidence,
+            cost_evidence=args.cost_evidence,
+            reproduction_evidence=args.reproduction_evidence,
+            adoption_evidence=args.adoption_evidence,
+            risk=args.risk,
+            status=args.status,
+        )
+        stored = claim_diligence.upsert(data, record)
+        claim_diligence.save(data)
+        print(json.dumps(stored, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "claim-import":
+        data = claim_diligence.load()
+        imported = json.loads(args.path.read_text(encoding="utf-8"))
+        if not isinstance(imported, dict):
+            raise ValueError(f"expected JSON object: {args.path}")
+        count = claim_diligence.import_claims(data, imported)
+        claim_diligence.save(data)
+        print(json.dumps({"imported": count}, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "claim-list":
+        print(claim_diligence.render(claim_diligence.load()))
+        return 0
+    if args.command == "claim-validate":
+        findings = claim_diligence.validate_state(claim_diligence.load())
+        if args.json:
+            print(
+                json.dumps(
+                    [finding.to_dict() for finding in findings], ensure_ascii=False, indent=2
+                )
+            )
+        else:
+            print("\n".join(f"{f.code} {f.record_id}: {f.message}" for f in findings) or "OK")
+        return 0 if not findings else 2
+    if args.command == "claim-export":
+        data = claim_diligence.load()
+        if args.format == "json":
+            output = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+        else:
+            output = claim_diligence.render_markdown(data)
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(output, encoding="utf-8")
+        else:
+            print(output, end="")
         return 0
     raise AssertionError(args.command)
 

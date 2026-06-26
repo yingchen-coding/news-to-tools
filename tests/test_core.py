@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from news_to_tools import (
+    claim_diligence,
     medical_claim_gate,
     model_registry,
     pdf_triage,
@@ -137,6 +138,41 @@ def test_queue_import_is_idempotent_and_preserves_evidence(tmp_path: Path, monke
     assert task["priority"] == 1
     assert "https://example.com/graph" in task["evidence"]
     assert "Use entity links" in task["evidence"][1]
+
+
+def test_ai_claim_diligence_blocks_unverified_high_risk_claim():
+    record = claim_diligence.make_record(
+        subject="Example robot agent",
+        domain="physical",
+        claim_type="deployment",
+        claim="Can handle warehouse tasks safely in production.",
+        source_url="https://example.com/robot",
+        deployment_evidence="vendor launch post",
+    )
+    raw = record.to_dict()
+
+    assert raw["risk"] == "high"
+    assert raw["recommendation"] == "verify-first"
+    assert "safety_evidence" in raw["missing_evidence"]
+    findings = claim_diligence.validate_record(raw)
+    assert any(finding.code == "CLAIM102" for finding in findings)
+
+
+def test_ai_claim_diligence_allows_low_risk_validated_claim():
+    record = claim_diligence.make_record(
+        subject="Example code model",
+        domain="coding",
+        claim_type="benchmark",
+        claim="Improves repository issue resolution on a public benchmark.",
+        source_url="https://example.com/code-model",
+        benchmark="Public issue-resolution benchmark",
+        reproduction_evidence="local harness command passed",
+        status="validated",
+    )
+    raw = record.to_dict()
+
+    assert raw["recommendation"] == "implement"
+    assert claim_diligence.validate_record(raw) == []
 
 
 def test_state_path_respects_environment(tmp_path: Path, monkeypatch):
