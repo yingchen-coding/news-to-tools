@@ -31,6 +31,7 @@ def test_cli_queue_import(tmp_path: Path, monkeypatch, capsys):
     assert main(["queue-import", str(queue)]) == 0
     output = capsys.readouterr().out
     assert '"imported": 1' in output
+    assert str(tmp_path) not in output
     assert main(["task-list"]) == 0
     assert "Implement-latest-agent-article" in capsys.readouterr().out
 

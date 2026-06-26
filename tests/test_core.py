@@ -97,6 +97,8 @@ def test_queue_import_adds_actionable_items(tmp_path: Path, monkeypatch):
     result = queue_import.import_queue(queue)
     assert result["items"] == 3
     assert result["imported"] == 1
+    assert result["source_file"] == "queue.json"
+    assert str(tmp_path) not in str(result)
     assert result["skipped"] == 2
     rendered = workboard.render(workboard.load())
     assert "Implement article: Agent workflow adds background task board" in rendered
