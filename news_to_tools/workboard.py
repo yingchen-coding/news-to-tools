@@ -68,6 +68,22 @@ def add_task(data: dict[str, Any], task: Task) -> dict[str, Any]:
     return record
 
 
+def find_existing_task(
+    data: dict[str, Any],
+    *,
+    title: str = "",
+    source_url: str = "",
+) -> dict[str, Any] | None:
+    for task in data["tasks"]:
+        if not isinstance(task, dict):
+            continue
+        if source_url and task.get("source_url") == source_url:
+            return task
+        if title and task.get("title") == title:
+            return task
+    return None
+
+
 def set_status(task: dict[str, Any], status: str, details: str = "") -> None:
     if status not in VALID_STATUS:
         raise ValueError(f"invalid status: {status}")

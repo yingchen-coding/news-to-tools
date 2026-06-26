@@ -105,6 +105,40 @@ def test_queue_import_adds_actionable_items(tmp_path: Path, monkeypatch):
     assert "Implement article: Agent workflow adds background task board" in rendered
 
 
+def test_queue_import_is_idempotent_and_preserves_evidence(tmp_path: Path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    queue = tmp_path / "queue.json"
+    queue.write_text(
+        """
+        {
+          "items": [
+            {
+              "title": "Latest graph search technique",
+              "status": "latest",
+              "source_url": "https://example.com/graph",
+              "summary": "Use entity links for fast incident search."
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    first = queue_import.import_queue(queue)
+    second = queue_import.import_queue(queue)
+
+    assert first["imported"] == 1
+    assert first["existing"] == 0
+    assert second["imported"] == 0
+    assert second["existing"] == 1
+    data = workboard.load()
+    assert len(data["tasks"]) == 1
+    task = data["tasks"][0]
+    assert task["priority"] == 1
+    assert "https://example.com/graph" in task["evidence"]
+    assert "Use entity links" in task["evidence"][1]
+
+
 def test_state_path_respects_environment(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("NEWS_TO_TOOLS_STATE_DIR", str(tmp_path / "state"))
     assert state_dir() == tmp_path / "state"
