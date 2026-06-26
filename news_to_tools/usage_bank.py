@@ -4,23 +4,25 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from .utils import DEFAULT_STATE_DIR, now, read_json, write_json
+from .utils import now, read_json, state_path, write_json
 
-DEFAULT_USAGE_BANK = DEFAULT_STATE_DIR / "usage-bank.json"
+USAGE_BANK_FILE = "usage-bank.json"
 
 
 def today() -> str:
     return date.today().isoformat()
 
 
-def load(path: Path = DEFAULT_USAGE_BANK) -> dict[str, Any]:
+def load(path: Path | None = None) -> dict[str, Any]:
+    path = path or state_path(USAGE_BANK_FILE)
     data = read_json(path, {"version": 1, "accounts": {}})
     if not isinstance(data.get("accounts"), dict):
         raise ValueError(f"invalid usage bank: {path}")
     return data
 
 
-def save(data: dict[str, Any], path: Path = DEFAULT_USAGE_BANK) -> None:
+def save(data: dict[str, Any], path: Path | None = None) -> None:
+    path = path or state_path(USAGE_BANK_FILE)
     write_json(path, data)
 
 

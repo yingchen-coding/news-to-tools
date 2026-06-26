@@ -9,6 +9,7 @@ from news_to_tools import (
     usage_bank,
     workboard,
 )
+from news_to_tools.utils import state_dir, state_path
 
 
 def test_workboard_add_and_render():
@@ -102,3 +103,9 @@ def test_queue_import_adds_actionable_items(tmp_path: Path, monkeypatch):
     assert result["skipped"] == 2
     rendered = workboard.render(workboard.load())
     assert "Implement article: Agent workflow adds background task board" in rendered
+
+
+def test_state_path_respects_environment(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("NEWS_TO_TOOLS_STATE_DIR", str(tmp_path / "state"))
+    assert state_dir() == tmp_path / "state"
+    assert state_path("workboard.json") == tmp_path / "state" / "workboard.json"

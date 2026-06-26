@@ -3,19 +3,21 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from .utils import DEFAULT_STATE_DIR, now, read_json, write_json
+from .utils import now, read_json, state_path, write_json
 
-DEFAULT_REGISTRY = DEFAULT_STATE_DIR / "model-candidates.json"
+REGISTRY_FILE = "model-candidates.json"
 
 
-def load(path: Path = DEFAULT_REGISTRY) -> dict[str, Any]:
+def load(path: Path | None = None) -> dict[str, Any]:
+    path = path or state_path(REGISTRY_FILE)
     data = read_json(path, {"version": 1, "models": {}})
     if not isinstance(data.get("models"), dict):
         raise ValueError(f"invalid model registry: {path}")
     return data
 
 
-def save(data: dict[str, Any], path: Path = DEFAULT_REGISTRY) -> None:
+def save(data: dict[str, Any], path: Path | None = None) -> None:
+    path = path or state_path(REGISTRY_FILE)
     write_json(path, data)
 
 
