@@ -57,6 +57,10 @@ By default, `queue-import` imports items with missing/new/queued/todo/pending st
 `done` or `dropped` items. Use repeated `--include-status STATUS` flags when your queue uses custom
 status names.
 
+Queue import is idempotent. Re-running the same feed will not duplicate tasks; matching uses
+`source_url` when present and falls back to the generated task title. Article priority and evidence
+fields such as `summary`, `notes`, and source links are carried into the workboard.
+
 Register a hyped model without letting your automation route to it:
 
 ```bash
