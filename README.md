@@ -46,6 +46,17 @@ news-to-tools task-add "Implement article: desktop agent scheduler" \
 news-to-tools task-list
 ```
 
+Import a generic queue JSON into the workboard:
+
+```bash
+news-to-tools queue-import examples/queue.sample.json
+news-to-tools task-list
+```
+
+By default, `queue-import` imports items with missing/new/queued/todo/pending status and skips
+`done` or `dropped` items. Use repeated `--include-status STATUS` flags when your queue uses custom
+status names.
+
 Register a hyped model without letting your automation route to it:
 
 ```bash

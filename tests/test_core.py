@@ -4,6 +4,7 @@ from news_to_tools import (
     medical_claim_gate,
     model_registry,
     pdf_triage,
+    queue_import,
     security_incidents,
     usage_bank,
     workboard,
@@ -76,3 +77,26 @@ def test_pdf_triage_text_file(tmp_path: Path):
     out = pdf_triage.triage(source, tmp_path / "out")
     assert (out / "extracted.txt").exists()
     assert (out / "triage.json").exists()
+
+
+def test_queue_import_adds_actionable_items(tmp_path: Path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    queue = tmp_path / "queue.json"
+    queue.write_text(
+        """
+        {
+          "items": [
+            {"title": "Agent workflow adds background task board", "source_url": "https://example.com/a"},
+            {"title_ocr": "Already shipped", "status": "done"},
+            {"headline": "Dropped hype", "status": "dropped"}
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+    result = queue_import.import_queue(queue)
+    assert result["items"] == 3
+    assert result["imported"] == 1
+    assert result["skipped"] == 2
+    rendered = workboard.render(workboard.load())
+    assert "Implement article: Agent workflow adds background task board" in rendered
