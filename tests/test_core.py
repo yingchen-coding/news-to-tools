@@ -2,7 +2,6 @@ from pathlib import Path
 
 from news_to_tools import (
     claim_diligence,
-    claim_feed,
     design_handoff,
     medical_claim_gate,
     model_registry,
@@ -140,74 +139,6 @@ def test_queue_import_is_idempotent_and_preserves_evidence(tmp_path: Path, monke
     assert task["priority"] == 1
     assert "https://example.com/graph" in task["evidence"]
     assert "Use entity links" in task["evidence"][1]
-
-
-def test_claim_feed_imports_product_map_to_claim_diligence(tmp_path: Path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    feed = tmp_path / "product-map.json"
-    feed.write_text(
-        """
-        {
-          "product_ideas": {
-            "model_claim_diligence_feed": {
-              "items": [
-                {
-                  "title": "DeepSeek token price beats competitors",
-                  "summary": "Verify exact article before implementation.",
-                  "source_url": "https://example.com/deepseek-cost"
-                },
-                {
-                  "title": "Fable model security incident blocks medical answer",
-                  "summary": "Article claims model refused a cancer question."
-                }
-              ]
-            }
-          }
-        }
-        """,
-        encoding="utf-8",
-    )
-
-    first = claim_feed.import_claim_feed(feed)
-    second = claim_feed.import_claim_feed(feed)
-
-    assert first["items"] == 2
-    assert first["imported"] == 2
-    assert second["updated"] == 2
-    data = claim_diligence.load()
-    assert len(data["claims"]) == 2
-    by_subject = {claim["subject"]: claim for claim in data["claims"]}
-    assert by_subject["DeepSeek"]["claim_type"] == "cost"
-    assert by_subject["DeepSeek"]["recommendation"] == "verify-first"
-    assert by_subject["Fable"]["recommendation"] == "reject"
-    assert by_subject["Fable"]["risk"] == "high"
-
-
-def test_claim_feed_imports_generic_items(tmp_path: Path, monkeypatch):
-    monkeypatch.chdir(tmp_path)
-    feed = tmp_path / "claims.json"
-    feed.write_text(
-        """
-        {
-          "items": [
-            {
-              "headline": "Gemma wins public benchmark",
-              "link": "https://example.com/gemma-benchmark",
-              "notes": "Needs independent reproduction."
-            }
-          ]
-        }
-        """,
-        encoding="utf-8",
-    )
-
-    result = claim_feed.import_claim_feed(feed)
-
-    assert result["imported"] == 1
-    claim = claim_diligence.load()["claims"][0]
-    assert claim["subject"] == "Gemma"
-    assert claim["claim_type"] == "benchmark"
-    assert "benchmark or reproduction_evidence" in claim["missing_evidence"]
 
 
 def test_design_handoff_builds_component_tasks():

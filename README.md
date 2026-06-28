@@ -15,7 +15,6 @@ workflow ideas. News to Tools converts the parts worth acting on into concrete l
 - medical AI claim gates that block clinical use without independent validation
 - model security incident logs
 - AI claim diligence for benchmark, cost, safety, deployment, adoption, and physical-AI claims
-- model-claim feed import that turns noisy news/product maps into claim-diligence records
 - PDF triage packets for long documents
 - design handoff packets that turn product notes into component tasks and acceptance criteria
 
@@ -102,20 +101,6 @@ news-to-tools claim-validate
 
 High-risk claims are intentionally stricter. Medical, security, and physical-AI deployment claims
 need safety or reproduction evidence before they can move past `verify-first`.
-
-Import a feed of model claims from a news/product map:
-
-```bash
-news-to-tools claim-feed-import product-map.json
-news-to-tools claim-list
-news-to-tools claim-validate
-```
-
-`claim-feed-import` reads generic `items` feeds and `product_ideas.model_claim_diligence_feed`
-payloads. It infers broad claim type such as cost, benchmark, security, release, or adoption, then
-stores the result in the claim diligence ledger. Items without public source URLs are intentionally
-kept as `reject` or `verify-first`; verified candidates should only update routing systems after
-local checks.
 
 Turn a design or product brief into buildable UI tasks:
 
