@@ -2,6 +2,7 @@ from pathlib import Path
 
 from news_to_tools import (
     claim_diligence,
+    design_handoff,
     medical_claim_gate,
     model_registry,
     pdf_triage,
@@ -138,6 +139,33 @@ def test_queue_import_is_idempotent_and_preserves_evidence(tmp_path: Path, monke
     assert task["priority"] == 1
     assert "https://example.com/graph" in task["evidence"]
     assert "Use entity links" in task["evidence"][1]
+
+
+def test_design_handoff_builds_component_tasks():
+    packet = design_handoff.build_handoff(
+        "Users can search camps by zipcode.\nUpload a PDF schedule and show a table."
+    )
+
+    assert [item["component"] for item in packet["components"]] == [
+        "SearchFilter",
+        "FileUpload",
+    ]
+    assert packet["components"][0]["developer_task"].startswith("Implement SearchFilter")
+    assert "loading" in packet["components"][0]["states"]
+    assert "backend or agent action fails" in packet["review_questions"][-1]
+
+
+def test_design_handoff_import_to_workboard_is_idempotent():
+    packet = design_handoff.build_handoff("Show a dashboard metric for model spend.")
+    board = {"version": 1, "tasks": []}
+
+    first = design_handoff.import_to_workboard(packet, board)
+    second = design_handoff.import_to_workboard(packet, board)
+
+    assert first == {"imported": 1, "existing": 0}
+    assert second == {"imported": 0, "existing": 1}
+    assert board["tasks"][0]["priority"] == 2
+    assert "Design source: brief" in board["tasks"][0]["evidence"]
 
 
 def test_ai_claim_diligence_blocks_unverified_high_risk_claim():

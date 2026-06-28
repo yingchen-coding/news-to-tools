@@ -122,6 +122,26 @@ def test_cli_claim_diligence_returns_nonzero_for_missing_evidence(tmp_path: Path
     assert main(["claim-validate"]) == 2
 
 
+def test_cli_design_handoff_writes_packet_and_workboard(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    brief = tmp_path / "brief.txt"
+    brief.write_text(
+        "Search by zipcode and filter by price.\nExport selected camps as a table.",
+        encoding="utf-8",
+    )
+
+    assert main(["design-handoff", str(brief), "--add-to-workboard", "--format", "json"]) == 0
+    output = capsys.readouterr().out
+    assert '"component": "SearchFilter"' in output
+    assert '"imported": 2' in output
+    assert (tmp_path / ".news-to-tools" / "design-handoffs" / "brief.txt" / "handoff.json").exists()
+
+    assert main(["task-list"]) == 0
+    tasks = capsys.readouterr().out
+    assert "Implement-SearchFilter" in tasks
+    assert "Implement-DataList" in tasks
+
+
 def test_module_entrypoint_help():
     result = subprocess.run(
         [sys.executable, "-m", "news_to_tools", "--help"],

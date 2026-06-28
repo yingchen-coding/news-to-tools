@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import (
     claim_diligence,
+    design_handoff,
     medical_claim_gate,
     model_registry,
     pdf_triage,
@@ -108,6 +109,12 @@ def main(argv: list[str] | None = None) -> int:
     claim_export = sub.add_parser("claim-export", help="export AI claim diligence state")
     claim_export.add_argument("--format", choices=["json", "markdown"], default="markdown")
     claim_export.add_argument("--output", type=Path)
+
+    handoff = sub.add_parser("design-handoff", help="turn a design brief into build tasks")
+    handoff.add_argument("path", type=Path)
+    handoff.add_argument("--output-root", type=Path)
+    handoff.add_argument("--format", choices=["json", "markdown"], default="markdown")
+    handoff.add_argument("--add-to-workboard", action="store_true")
 
     args = parser.parse_args(argv)
     previous_state_dir = os.environ.get(STATE_DIR_ENV)
@@ -261,6 +268,22 @@ def _run_command(args: argparse.Namespace) -> int:
             args.output.write_text(output, encoding="utf-8")
         else:
             print(output, end="")
+        return 0
+    if args.command == "design-handoff":
+        packet, out = design_handoff.build_from_file(args.path, args.output_root)
+        result: dict[str, int] | None = None
+        if args.add_to_workboard:
+            result = design_handoff.import_to_workboard(packet)
+        if args.format == "json":
+            payload: dict[str, object] = {"output": str(out), "handoff": packet}
+            if result is not None:
+                payload["workboard"] = result
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(design_handoff.render_markdown(packet), end="")
+            print(f"\nOutput: {out}")
+            if result is not None:
+                print(f"Workboard: imported={result['imported']} existing={result['existing']}")
         return 0
     raise AssertionError(args.command)
 

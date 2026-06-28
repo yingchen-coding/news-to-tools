@@ -16,6 +16,7 @@ workflow ideas. News to Tools converts the parts worth acting on into concrete l
 - model security incident logs
 - AI claim diligence for benchmark, cost, safety, deployment, adoption, and physical-AI claims
 - PDF triage packets for long documents
+- design handoff packets that turn product notes into component tasks and acceptance criteria
 
 ## Star This If
 
@@ -101,6 +102,19 @@ news-to-tools claim-validate
 High-risk claims are intentionally stricter. Medical, security, and physical-AI deployment claims
 need safety or reproduction evidence before they can move past `verify-first`.
 
+Turn a design or product brief into buildable UI tasks:
+
+```bash
+printf "Search by zipcode and filter by price.\nExport selected results as a table.\n" > brief.txt
+
+news-to-tools design-handoff brief.txt --add-to-workboard
+news-to-tools task-list
+```
+
+The command writes a local `handoff.json` and `handoff.md` under `.news-to-tools/design-handoffs/`.
+Each inferred component includes default/loading/empty/error states and acceptance criteria, then
+can be imported into the workboard without duplicating tasks on rerun.
+
 ## State Files
 
 By default, the CLI writes local state under `.news-to-tools/` in the current working directory.
@@ -109,9 +123,9 @@ That directory is ignored by git.
 For automation, pin the state directory so commands do not depend on the current working directory:
 
 ```bash
-news-to-tools --state-dir ~/Documents/learning/news-to-tools task-list
+news-to-tools --state-dir ./.news-to-tools-state task-list
 
-NEWS_TO_TOOLS_STATE_DIR=~/Documents/learning/news-to-tools \
+NEWS_TO_TOOLS_STATE_DIR=./.news-to-tools-state \
   news-to-tools task-add "Implement article: agent trace action extraction"
 ```
 
