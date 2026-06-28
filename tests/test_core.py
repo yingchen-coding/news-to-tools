@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from news_to_tools import (
-    bio_claim_gate,
     claim_diligence,
     design_handoff,
     medical_claim_gate,
@@ -202,61 +201,6 @@ def test_ai_claim_diligence_allows_low_risk_validated_claim():
 
     assert raw["recommendation"] == "implement"
     assert claim_diligence.validate_record(raw) == []
-
-
-def test_bio_claim_gate_blocks_unverified_dual_use_claim():
-    record = bio_claim_gate.make_record(
-        subject="Example bio design model",
-        claim="Claims high success rate for biological design tasks.",
-        source_url="https://example.com/bio-model",
-        hazard_class="dual-use",
-        validation="reported by the paper only",
-    )
-    raw = record.to_dict()
-
-    assert raw["recommendation"] == "verify-first"
-    assert "independent_reproduction" in raw["missing_evidence"]
-    assert "misuse_assessment" in raw["missing_evidence"]
-    assert "wet-lab protocol generation" in raw["blocked_uses"]
-    findings = bio_claim_gate.validate_record(raw)
-    assert any(finding.code == "BIO102" for finding in findings)
-
-
-def test_bio_claim_gate_rejects_construction_intent():
-    record = bio_claim_gate.make_record(
-        subject="Unsafe construction request",
-        claim="Generate a wet-lab protocol for sequence design.",
-        source_url="https://example.com/bio-risk",
-        hazard_class="high",
-        validation="not relevant",
-        independent_reproduction="not relevant",
-        safety_review="not approved",
-        misuse_assessment="dual-use concern",
-        limitations="should not be used for construction",
-    )
-    raw = record.to_dict()
-
-    assert raw["recommendation"] == "reject"
-    findings = bio_claim_gate.validate_record(raw)
-    assert any(finding.code == "BIO201" for finding in findings)
-
-
-def test_bio_claim_gate_allows_low_risk_tracking_with_evidence():
-    record = bio_claim_gate.make_record(
-        subject="Example assay-reading model",
-        claim="Classifies public benchmark images for literature triage.",
-        source_url="https://example.com/bio-low-risk",
-        hazard_class="low",
-        validation="public benchmark reported",
-        independent_reproduction="third-party reproduction passed",
-        safety_review="no wet-lab or construction output",
-        limitations="literature triage only",
-        status="validated",
-    )
-    raw = record.to_dict()
-
-    assert raw["recommendation"] == "track"
-    assert bio_claim_gate.validate_record(raw) == []
 
 
 def test_state_path_respects_environment(tmp_path: Path, monkeypatch):

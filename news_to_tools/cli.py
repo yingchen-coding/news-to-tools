@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 
 from . import (
-    bio_claim_gate,
     claim_diligence,
     design_handoff,
     medical_claim_gate,
@@ -110,35 +109,6 @@ def main(argv: list[str] | None = None) -> int:
     claim_export = sub.add_parser("claim-export", help="export AI claim diligence state")
     claim_export.add_argument("--format", choices=["json", "markdown"], default="markdown")
     claim_export.add_argument("--output", type=Path)
-
-    bio_add = sub.add_parser("bio-claim-add", help="record a bio-AI claim safety/evidence gate")
-    bio_add.add_argument("--subject", required=True)
-    bio_add.add_argument("--claim", required=True)
-    bio_add.add_argument("--source-url", required=True)
-    bio_add.add_argument(
-        "--hazard-class",
-        default="unknown",
-        choices=sorted(bio_claim_gate.VALID_HAZARD_CLASSES),
-    )
-    bio_add.add_argument("--validation", default="")
-    bio_add.add_argument("--independent-reproduction", default="")
-    bio_add.add_argument("--safety-review", default="")
-    bio_add.add_argument("--misuse-assessment", default="")
-    bio_add.add_argument("--limitations", default="")
-    bio_add.add_argument(
-        "--status",
-        default="needs-review",
-        choices=sorted(bio_claim_gate.VALID_STATUS),
-    )
-
-    sub.add_parser("bio-claim-list", help="list bio-AI claim gates")
-
-    bio_validate = sub.add_parser("bio-claim-validate", help="validate bio-AI claim gates")
-    bio_validate.add_argument("--json", action="store_true")
-
-    bio_export = sub.add_parser("bio-claim-export", help="export bio-AI claim gates")
-    bio_export.add_argument("--format", choices=["json", "markdown"], default="markdown")
-    bio_export.add_argument("--output", type=Path)
 
     handoff = sub.add_parser("design-handoff", help="turn a design brief into build tasks")
     handoff.add_argument("path", type=Path)
@@ -293,50 +263,6 @@ def _run_command(args: argparse.Namespace) -> int:
             output = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
         else:
             output = claim_diligence.render_markdown(data)
-        if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            args.output.write_text(output, encoding="utf-8")
-        else:
-            print(output, end="")
-        return 0
-    if args.command == "bio-claim-add":
-        data = bio_claim_gate.load()
-        record = bio_claim_gate.make_record(
-            subject=args.subject,
-            claim=args.claim,
-            source_url=args.source_url,
-            hazard_class=args.hazard_class,
-            validation=args.validation,
-            independent_reproduction=args.independent_reproduction,
-            safety_review=args.safety_review,
-            misuse_assessment=args.misuse_assessment,
-            limitations=args.limitations,
-            status=args.status,
-        )
-        stored = bio_claim_gate.upsert(data, record)
-        bio_claim_gate.save(data)
-        print(json.dumps(stored, ensure_ascii=False, indent=2))
-        return 0
-    if args.command == "bio-claim-list":
-        print(bio_claim_gate.render(bio_claim_gate.load()))
-        return 0
-    if args.command == "bio-claim-validate":
-        findings = bio_claim_gate.validate_state(bio_claim_gate.load())
-        if args.json:
-            print(
-                json.dumps(
-                    [finding.to_dict() for finding in findings], ensure_ascii=False, indent=2
-                )
-            )
-        else:
-            print("\n".join(f"{f.code} {f.record_id}: {f.message}" for f in findings) or "OK")
-        return 0 if not findings else 2
-    if args.command == "bio-claim-export":
-        data = bio_claim_gate.load()
-        if args.format == "json":
-            output = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
-        else:
-            output = bio_claim_gate.render_markdown(data)
         if args.output:
             args.output.parent.mkdir(parents=True, exist_ok=True)
             args.output.write_text(output, encoding="utf-8")
