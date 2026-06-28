@@ -7,6 +7,7 @@ from pathlib import Path
 
 from . import (
     claim_diligence,
+    claim_feed,
     design_handoff,
     medical_claim_gate,
     model_registry,
@@ -100,6 +101,13 @@ def main(argv: list[str] | None = None) -> int:
 
     claim_import = sub.add_parser("claim-import", help="import AI claim diligence records")
     claim_import.add_argument("path", type=Path)
+
+    claim_feed_import = sub.add_parser(
+        "claim-feed-import",
+        help="import a news/product-map feed into AI claim diligence",
+    )
+    claim_feed_import.add_argument("path", type=Path)
+    claim_feed_import.add_argument("--feed", default="model_claim_diligence_feed")
 
     sub.add_parser("claim-list", help="list AI claim diligence records")
 
@@ -242,6 +250,15 @@ def _run_command(args: argparse.Namespace) -> int:
         count = claim_diligence.import_claims(data, imported)
         claim_diligence.save(data)
         print(json.dumps({"imported": count}, ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "claim-feed-import":
+        print(
+            json.dumps(
+                claim_feed.import_claim_feed(args.path, feed=args.feed),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return 0
     if args.command == "claim-list":
         print(claim_diligence.render(claim_diligence.load()))

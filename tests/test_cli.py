@@ -122,6 +122,38 @@ def test_cli_claim_diligence_returns_nonzero_for_missing_evidence(tmp_path: Path
     assert main(["claim-validate"]) == 2
 
 
+def test_cli_claim_feed_import(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    feed = tmp_path / "product-map.json"
+    feed.write_text(
+        """
+        {
+          "product_ideas": {
+            "model_claim_diligence_feed": {
+              "items": [
+                {
+                  "title": "DeepSeek token price beats competitors",
+                  "summary": "Needs source verification.",
+                  "source_url": "https://example.com/deepseek-cost"
+                }
+              ]
+            }
+          }
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    assert main(["claim-feed-import", str(feed)]) == 0
+    output = capsys.readouterr().out
+    assert '"imported": 1' in output
+
+    assert main(["claim-list"]) == 0
+    claims = capsys.readouterr().out
+    assert "DeepSeek-cost" in claims
+    assert "verify-first" in claims
+
+
 def test_cli_design_handoff_writes_packet_and_workboard(tmp_path: Path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     brief = tmp_path / "brief.txt"
