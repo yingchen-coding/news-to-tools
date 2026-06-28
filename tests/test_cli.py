@@ -122,6 +122,76 @@ def test_cli_claim_diligence_returns_nonzero_for_missing_evidence(tmp_path: Path
     assert main(["claim-validate"]) == 2
 
 
+def test_cli_bio_claim_gate_lifecycle(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+
+    assert (
+        main(
+            [
+                "bio-claim-add",
+                "--subject",
+                "Example bio model",
+                "--claim",
+                "Classifies public benchmark images for literature triage.",
+                "--source-url",
+                "https://example.com/bio-model",
+                "--hazard-class",
+                "low",
+                "--validation",
+                "public benchmark",
+                "--independent-reproduction",
+                "third-party reproduction",
+                "--safety-review",
+                "no wet-lab or construction output",
+                "--limitations",
+                "literature triage only",
+                "--status",
+                "validated",
+            ]
+        )
+        == 0
+    )
+    output = capsys.readouterr().out
+    assert '"recommendation": "track"' in output
+    assert "biological construction guidance" in output
+
+    assert main(["bio-claim-validate"]) == 0
+    assert "OK" in capsys.readouterr().out
+
+    assert main(["bio-claim-list"]) == 0
+    assert "Example-bio-model" in capsys.readouterr().out
+
+    export_path = tmp_path / "bio-claims.md"
+    assert main(["bio-claim-export", "--output", str(export_path)]) == 0
+    exported = export_path.read_text(encoding="utf-8")
+    assert "Bio-AI Claim Gate" in exported
+    assert "not biological construction guidance" in exported
+
+
+def test_cli_bio_claim_gate_rejects_protocol_claim(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+
+    assert (
+        main(
+            [
+                "bio-claim-add",
+                "--subject",
+                "Unsafe request",
+                "--claim",
+                "Generate a wet-lab protocol for sequence design.",
+                "--source-url",
+                "https://example.com/bio-risk",
+                "--hazard-class",
+                "high",
+            ]
+        )
+        == 0
+    )
+    assert '"recommendation": "reject"' in capsys.readouterr().out
+    assert main(["bio-claim-validate"]) == 2
+    assert "BIO201" in capsys.readouterr().out
+
+
 def test_cli_design_handoff_writes_packet_and_workboard(tmp_path: Path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     brief = tmp_path / "brief.txt"

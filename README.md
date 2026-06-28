@@ -13,6 +13,7 @@ workflow ideas. News to Tools converts the parts worth acting on into concrete l
 - guarded model candidates with `auto_route_allowed=false` until verified
 - usage/quota budgets for long-running agents
 - medical AI claim gates that block clinical use without independent validation
+- bio-AI claim gates that audit evidence without providing biological construction guidance
 - model security incident logs
 - AI claim diligence for benchmark, cost, safety, deployment, adoption, and physical-AI claims
 - PDF triage packets for long documents
@@ -102,6 +103,25 @@ news-to-tools claim-validate
 High-risk claims are intentionally stricter. Medical, security, and physical-AI deployment claims
 need safety or reproduction evidence before they can move past `verify-first`.
 
+Audit a bio-AI claim without turning it into construction guidance:
+
+```bash
+news-to-tools bio-claim-add \
+  --subject "Example bio design model" \
+  --claim "Claims high success rate for biological design tasks." \
+  --source-url "https://example.com/bio-model" \
+  --hazard-class dual-use \
+  --validation "reported by the paper only"
+
+news-to-tools bio-claim-list
+news-to-tools bio-claim-validate
+```
+
+Bio-AI gates always block biological construction guidance, wet-lab protocol generation, sequence
+or organism design, and deployment approval. The output is an evidence ledger: source, validation,
+independent reproduction, safety review, misuse assessment, limitations, and a recommendation such
+as `verify-first` or `reject`.
+
 Turn a design or product brief into buildable UI tasks:
 
 ```bash
@@ -146,3 +166,6 @@ This is not a benchmark system. Model candidates are blocked from automatic rout
 real local verification.
 
 This is not medical advice. Medical AI claims are recorded as claims and blocked by default.
+
+This is not a biology design tool. Bio-AI claim gates are for evidence tracking and safety review;
+they do not provide wet-lab protocols, biological construction instructions, or sequence designs.
