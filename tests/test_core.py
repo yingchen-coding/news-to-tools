@@ -6,6 +6,7 @@ from news_to_tools import (
     medical_claim_gate,
     model_registry,
     pdf_triage,
+    promotion,
     queue_import,
     security_incidents,
     usage_bank,
@@ -139,6 +140,33 @@ def test_queue_import_is_idempotent_and_preserves_evidence(tmp_path: Path, monke
     assert task["priority"] == 1
     assert "https://example.com/graph" in task["evidence"]
     assert "Use entity links" in task["evidence"][1]
+
+
+def test_promotion_plan_routes_news_to_existing_products(tmp_path: Path):
+    feed = tmp_path / "feed.json"
+    feed.write_text(
+        """
+        {
+          "items": [
+            {"title": "Claude token cost falls after routing change", "theme": "claim_diligence"},
+            {"title": "MCP skill memory pattern for agents", "theme": "tool_implementation"},
+            {"title": "Mythos vulnerability agent exposes cyber risk", "theme": "claim_diligence"},
+            {"title": "Robot deployment claim needs evidence", "theme": "physical_ai"}
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    plan = promotion.build_plan(feed)
+    routes = {route["product"]: route for route in plan["routes"]}
+
+    assert routes["modelbroker"]["count"] == 1
+    assert routes["agentskill"]["count"] == 1
+    assert routes["agentguard"]["count"] == 1
+    assert routes["claim-gate"]["count"] == 1
+    assert "existing products first" in plan["decision"]
+    assert "Claude token cost" in promotion.render_markdown(plan)
 
 
 def test_design_handoff_builds_component_tasks():

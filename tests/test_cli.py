@@ -36,6 +36,24 @@ def test_cli_queue_import(tmp_path: Path, monkeypatch, capsys):
     assert "Implement-latest-agent-article" in capsys.readouterr().out
 
 
+def test_cli_promotion_plan(tmp_path: Path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    feed = tmp_path / "feed.json"
+    feed.write_text(
+        '{"items":[{"title":"Agent harness cuts runtime cost","theme":"tool_implementation"}]}',
+        encoding="utf-8",
+    )
+
+    assert main(["promotion-plan", str(feed)]) == 0
+    output = capsys.readouterr().out
+    assert "Product Promotion Plan" in output
+    assert "modelbroker" in output
+
+    out = tmp_path / "plan.json"
+    assert main(["promotion-plan", str(feed), "--format", "json", "--output", str(out)]) == 0
+    assert '"routes"' in out.read_text(encoding="utf-8")
+
+
 def test_cli_state_dir_is_scoped(tmp_path: Path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     explicit_state = tmp_path / "explicit-state"

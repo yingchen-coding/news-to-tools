@@ -11,6 +11,7 @@ from . import (
     medical_claim_gate,
     model_registry,
     pdf_triage,
+    promotion,
     queue_import,
     security_incidents,
     usage_bank,
@@ -45,6 +46,13 @@ def main(argv: list[str] | None = None) -> int:
         help="status to import; repeatable. Defaults to new/queued/todo/pending/missing.",
     )
     queue.add_argument("--source", default="queue-import")
+
+    promotion_plan = sub.add_parser(
+        "promotion-plan", help="route a news/article feed into product promotion targets"
+    )
+    promotion_plan.add_argument("path", type=Path)
+    promotion_plan.add_argument("--format", choices=["json", "markdown"], default="markdown")
+    promotion_plan.add_argument("--output", type=Path)
 
     model_add = sub.add_parser("model-add", help="add guarded model candidate")
     model_add.add_argument("model_id")
@@ -157,6 +165,18 @@ def _run_command(args: argparse.Namespace) -> int:
                 indent=2,
             )
         )
+        return 0
+    if args.command == "promotion-plan":
+        plan = promotion.build_plan(args.path)
+        if args.format == "json":
+            output = json.dumps(plan, ensure_ascii=False, indent=2) + "\n"
+        else:
+            output = promotion.render_markdown(plan)
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(output, encoding="utf-8")
+        else:
+            print(output, end="")
         return 0
     if args.command == "model-add":
         data = model_registry.load()

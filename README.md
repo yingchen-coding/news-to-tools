@@ -65,6 +65,17 @@ Queue import is idempotent. Re-running the same feed will not duplicate tasks; m
 `source_url` when present and falls back to the generated task title. Article priority and evidence
 fields such as `summary`, `notes`, and source links are carried into the workboard.
 
+Route a large article feed into product promotion targets:
+
+```bash
+news-to-tools promotion-plan examples/queue.sample.json
+news-to-tools promotion-plan examples/queue.sample.json --format json --output promotion-plan.json
+```
+
+The planner groups news into existing products first, such as model routing, agent security,
+agent dogfooding, reusable skills, claim gates, and talent radar. It is meant to prevent duplicate
+repos from every hot article while still keeping the useful product signal.
+
 Register a hyped model without letting your automation route to it:
 
 ```bash
