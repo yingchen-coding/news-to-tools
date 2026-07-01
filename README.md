@@ -142,11 +142,6 @@ NEWS_TO_TOOLS_STATE_DIR=./.news-to-tools-state \
 
 ## Local Review Check
 
-Before pushing changes, run:
-
-```bash
-scripts/pr_review_check.sh
-```
 
 ## What This Is Not
 
