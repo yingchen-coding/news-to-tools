@@ -18,6 +18,20 @@ workflow ideas. News to Tools converts the parts worth acting on into concrete l
 - PDF triage packets for long documents
 - design handoff packets that turn product notes into component tasks and acceptance criteria
 
+## Why It Matters
+
+Most AI news creates a false sense of progress: you read more, save more, and build nothing.
+News to Tools is intentionally biased toward conversion:
+
+- articles become implementation tasks
+- benchmark claims become evidence-gated claim records
+- model announcements become blocked candidates until verified
+- product ideas route into existing repos before creating new ones
+- risky medical/security claims stay behind explicit validation gates
+
+It is for builders who want the useful part of a feed without letting hype silently change the
+system.
+
 ## Star This If
 
 - Your reading queue is full but your shipped-tool queue is empty.
@@ -141,6 +155,13 @@ NEWS_TO_TOOLS_STATE_DIR=./.news-to-tools-state \
 ```
 
 ## Local Review Check
+
+```bash
+scripts/pr_review_check.sh
+```
+
+This runs compile checks, tests, Ruff when available, secret scanning, and commit-history
+attribution checks. It is also enforced by the `PR Review Gate` GitHub workflow.
 
 
 ## What This Is Not
