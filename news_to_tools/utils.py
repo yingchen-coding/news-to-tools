@@ -32,7 +32,13 @@ def slug(value: str, default: str = "item", limit: int = 80) -> str:
 def read_json(path: Path, default: dict[str, Any]) -> dict[str, Any]:
     if not path.exists():
         return default
-    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"state file is not valid JSON: {path} ({exc}). Restore it from a backup; "
+            f"news-to-tools will not overwrite a corrupt state file automatically."
+        ) from exc
     if not isinstance(data, dict):
         raise ValueError(f"expected JSON object: {path}")
     return data
@@ -40,4 +46,13 @@ def read_json(path: Path, default: dict[str, Any]) -> dict[str, Any]:
 
 def write_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    text = json.dumps(value, ensure_ascii=False, indent=2) + "\n"
+    # atomic write: the usage bank and idea ledger must survive an interrupted run — a
+    # truncate-then-write that is killed mid-flight would lose all tracked state
+    tmp = path.with_name(f"{path.name}.tmp.{os.getpid()}")
+    try:
+        tmp.write_text(text, encoding="utf-8")
+        os.replace(tmp, path)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
