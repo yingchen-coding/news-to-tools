@@ -154,16 +154,6 @@ NEWS_TO_TOOLS_STATE_DIR=./.news-to-tools-state \
   news-to-tools task-add "Implement article: agent trace action extraction"
 ```
 
-## Local Review Check
-
-```bash
-scripts/pr_review_check.sh
-```
-
-This runs compile checks, tests, Ruff when available, secret scanning, and commit-history
-attribution checks. It is also enforced by the `PR Review Gate` GitHub workflow.
-
-
 ## What This Is Not
 
 This is not a scraper for private chats. The public repo intentionally excludes personal WeChat
