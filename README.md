@@ -4,6 +4,8 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+![news-to-tools — a news feed becomes ranked product ideas](assets/demo.svg)
+
 Stop hoarding AI news. Turn the useful parts into tasks, gates, and local tools.
 
 Most AI/news feeds are noise: model hype, screenshots, benchmark claims, safety incidents, and

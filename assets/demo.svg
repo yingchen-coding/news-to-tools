@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="254" viewBox="0 0 780 254" role="img" aria-label="news-to-tools — a news feed becomes ranked product ideas">
+  <rect width="780" height="254" rx="10" fill="#0d1117" stroke="#30363d"/>
+  <rect width="780" height="40" rx="10" fill="#161b22"/>
+  <rect y="30" width="780" height="10" fill="#161b22"/>
+  <circle cx="18" cy="20" r="6" fill="#ff5f56"/><circle cx="38" cy="20" r="6" fill="#ffbd2e"/><circle cx="58" cy="20" r="6" fill="#27c93f"/>
+  <text x="390" y="24" fill="#8b949e" font-family="monospace" font-size="12" text-anchor="middle">news-to-tools — a news feed becomes ranked product ideas</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5">
+    <text x="22" y="58" fill="#e6edf3" xml:space="preserve">$ news-to-tools promotion-plan today.json</text><text x="22" y="80" fill="#3fb950" xml:space="preserve">  1,052 items  →  12 product signals, deduped and ranked</text><text x="22" y="124" fill="#8b949e" xml:space="preserve">  route:  57 → model-router   34 → agent-skills   14 → security</text><text x="22" y="146" fill="#8b949e" xml:space="preserve">          8 → runtime-eval     1 → talent-radar</text><text x="22" y="190" fill="#8b949e" xml:space="preserve">  usage bank: 3 grants remaining</text><text x="22" y="212" fill="#8b949e" xml:space="preserve">  # signal in, prioritized build queue out — nothing dropped silently</text>
+  </g>
+</svg>
